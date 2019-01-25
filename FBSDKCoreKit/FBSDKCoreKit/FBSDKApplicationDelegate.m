@@ -467,14 +467,16 @@ typedef void (^FBSDKAuthenticationCompletionHandler)(NSURL *_Nullable callbackUR
 {
     __weak typeof(self) weakSelf = self;
     _authenticationSessionCompletionHandler = ^ (NSURL *aURL, NSError *error) {
-        typeof(self) strongSelf = weakSelf;
-        strongSelf->_isRequestingSFAuthenticationSession = NO;
-        handler(error == nil, error);
-        if (error == nil) {
-            [strongSelf application:[UIApplication sharedApplication] openURL:aURL sourceApplication:@"com.apple" annotation:nil];
+        if (aURL || error) {
+            typeof(self) strongSelf = weakSelf;
+            strongSelf->_isRequestingSFAuthenticationSession = NO;
+            handler(error == nil, error);
+            if (error == nil) {
+                [strongSelf application:[UIApplication sharedApplication] openURL:aURL sourceApplication:@"com.apple" annotation:nil];
+            }
+            strongSelf->_authenticationSession = nil;
+            strongSelf->_authenticationSessionCompletionHandler = nil;
         }
-        strongSelf->_authenticationSession = nil;
-        strongSelf->_authenticationSessionCompletionHandler = nil;
     };
 }
 
